@@ -1,9 +1,10 @@
 const fs = require('fs');
 const readline = require('node:readline/promises');
 
+
 const welcomingMessage = 'Write your text in console...'
 
-const newFile = fs.createWriteStream(`${__dirname}/newText.txt`);
+const newFile = fs.createWriteStream(`${__dirname}/newText.txt`, { flags: 'a' });
 
 const readlineInput = readline.createInterface({
   input: process.stdin,
@@ -11,6 +12,7 @@ const readlineInput = readline.createInterface({
 });
 
 console.log(welcomingMessage);
+
 readlineInput.on('line', (input) => {
   if (input === 'exit') {
     console.log('Writing is stopped');
@@ -18,7 +20,7 @@ readlineInput.on('line', (input) => {
     newFile.close();
     process.exit();
   } else {
-    fs.writeFile(`${__dirname}/newText.txt`, input + '\n', {flag: 'a'}, (err) => {
+    fs.appendFile(`${__dirname}/newText.txt`, input + '\n', (err) => {
     if (err) {
       console.log(err);
       return;
@@ -27,8 +29,9 @@ readlineInput.on('line', (input) => {
   }
 });
 
-process.on('SIGINT', () => {
+readlineInput.on('SIGINT', () => {
   console.log('Writing is stopped');
+  readlineInput.close();
   newFile.close();
   process.exit();
 });

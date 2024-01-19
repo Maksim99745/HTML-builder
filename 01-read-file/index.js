@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const { error } = require('console');
 
 
 async function readFile () {
