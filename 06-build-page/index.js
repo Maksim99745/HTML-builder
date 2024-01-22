@@ -1,6 +1,5 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
-const fs = require('fs');
 
 
 async function buildPage () {
@@ -23,22 +22,23 @@ async function buildPage () {
       const HTMLArray = HTML.split('{{');
 
       for (let file of compamponentsFolder) {
-        const filePath = path.join(componentsFolderPath, file);
-        const fileData = await fsPromises.readFile(filePath, {encoding: 'utf-8'});
-        const fileName = file.split('.')[0];
-
-        for (let i = 0; i < HTMLArray.length; i += 1) {
-            const HTMLChunk = HTMLArray[i].slice(0, fileName.length);
-
-            if (HTMLChunk === fileName) {
-              HTMLArray[i] = HTMLArray[i].replace(`${fileName}}}`, `${fileData.trim()}`);
-              console.log(fileName);
-              console.log(HTMLArray[i])
-            } else {
-            }
+        const fileExtention = file.split('.')[1];
+        if (fileExtention === 'html') {
+          const filePath = path.join(componentsFolderPath, file);
+          const fileData = await fsPromises.readFile(filePath, {encoding: 'utf-8'});
+          const fileName = file.split('.')[0];
+  
+          for (let i = 0; i < HTMLArray.length; i += 1) {
+              const HTMLChunk = HTMLArray[i].slice(0, fileName.length);
+  
+              if (HTMLChunk === fileName) {
+                HTMLArray[i] = HTMLArray[i].replace(`${fileName}}}`, `${fileData.trim()}`);
+              } else {
+              }
+          }
+          const HTMLText = HTMLArray.join('');
+          await fsPromises.writeFile(HTMLPath, HTMLText, {flag: 'w'});
         }
-        const HTMLText = HTMLArray.join('');
-        await fsPromises.writeFile(HTMLPath, HTMLText, {flag: 'w'});
       }
     }
     bildHTML ()
