@@ -18,8 +18,7 @@ async function readDir(){
         output.push(extension);
 
         const filePath = path.join(item.path, item.name);
-        console.log(filePath)
-        const weight = (await fs.stat(filePath)).size + 'kb';
+        const weight = (await fs.stat(filePath)).size + 'B';
         output.push(weight);
 
         const information = output.join(' - ');

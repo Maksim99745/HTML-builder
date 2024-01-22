@@ -1,5 +1,6 @@
 const path = require('path');
 const fsPromises = require('fs/promises');
+const fs = require('fs');
 
 
 async function buildPage () {
@@ -16,36 +17,29 @@ async function buildPage () {
       await fsPromises.writeFile(HTMLPath, initHTML);
 
       const componentsFolderPath = path.join(__dirname, 'components');
-
-      const headerPath = path.join(componentsFolderPath, 'header.html');
-      const header = await fsPromises.readFile(headerPath, {encoding: 'utf-8'});
-
-
-
-      const articlePath = path.join(componentsFolderPath, 'articles.html');
-      const article = await fsPromises.readFile(articlePath);
-
-      const footerPath = path.join(componentsFolderPath, 'footer.html');
-      const footer = await fsPromises.readFile(footerPath);
+      const compamponentsFolder = await fsPromises.readdir(componentsFolderPath);
 
       const HTML = await fsPromises.readFile(HTMLPath, {encoding: 'utf-8'});
-      const HTMLArray = HTML.split('\n');
-      for (let i = 0; i < HTMLArray.length; i += 1) {
-        if (HTMLArray[i].trim() === '{{header}}') {
-          HTMLArray.splice(i, 1, header);
-        }
+      const HTMLArray = HTML.split('{{');
 
-        if (HTMLArray[i].trim() === '<main class="main">{{articles}}</main>') {
-          const mainBlock = `<main class="main">
-${article}</main>`
-          HTMLArray.splice(i, 1, mainBlock);
+      for (let file of compamponentsFolder) {
+        const filePath = path.join(componentsFolderPath, file);
+        const fileData = await fsPromises.readFile(filePath, {encoding: 'utf-8'});
+        const fileName = file.split('.')[0];
+
+        for (let i = 0; i < HTMLArray.length; i += 1) {
+            const HTMLChunk = HTMLArray[i].slice(0, fileName.length);
+
+            if (HTMLChunk === fileName) {
+              HTMLArray[i] = HTMLArray[i].replace(`${fileName}}}`, `${fileData.trim()}`);
+              console.log(fileName);
+              console.log(HTMLArray[i])
+            } else {
+            }
         }
-        if (HTMLArray[i].trim() === '{{footer}}') {
-          HTMLArray.splice(i, 1, footer);
-        }
+        const HTMLText = HTMLArray.join('');
+        await fsPromises.writeFile(HTMLPath, HTMLText, {flag: 'w'});
       }
-      const HTMLText = HTMLArray.join('\n');
-      await fsPromises.writeFile(HTMLPath, HTMLText, {flag: 'w'});
     }
     bildHTML ()
 
